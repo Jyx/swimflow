@@ -1,0 +1,35 @@
+// zoom-demo.diag -- the drill-down showcase.
+//
+// This is the drilldown.diag fixture taken further: four levels of diagrams,
+// each with a `ref` link to the next. Build a self-contained bundle with:
+//
+//   swimflow examples/zoom-demo.diag --bundle examples/zoom-demo.html --embed-font
+//
+// Click "Review changes" -> "Approve" -> "Deploy" -> "Back to overview".
+// The last link is a cycle, which the bundle's history stack handles.
+
+diagram overview {
+  numbering = auto;
+  Start -> Review;
+  Review [ref = "#details", label = "Review changes"];
+  Review -> Done;
+}
+
+diagram details {
+  lane "CI" {
+    Prepare -> Approve;
+  }
+  Approve [ref = "#release", label = "Approve"];
+}
+
+diagram release {
+  lane "Operations" {
+    Stage -> Deploy;
+  }
+  Deploy [ref = "#rollback", label = "Deploy"];
+}
+
+diagram rollback {
+  Detect -> Revert -> Verify;
+  Verify [ref = "#overview", label = "Back to overview"];
+}

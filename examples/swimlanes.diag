@@ -1,0 +1,21 @@
+// swimlanes.diag -- a classic cross-functional flow.
+//
+// A node belongs to the lane it is declared in. Edges may cross lanes freely,
+// which is what makes the hand-offs visible.
+
+diagram swimlanes {
+  lane "Customer" {
+    Browse;
+    Pay;
+  }
+  lane "Web shop" {
+    Cart;
+    Checkout;
+  }
+  lane "Payment" {
+    Authorize;
+    Receipt;
+  }
+
+  Browse -> Cart -> Checkout -> Authorize -> Receipt -> Pay;
+}

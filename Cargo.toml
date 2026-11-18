@@ -1,0 +1,54 @@
+[package]
+name = "swimflow"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+description = "Diagrams from a text DSL: activity/swimlane, sequence, tree, treemap and manifest"
+license = "Apache-2.0"
+repository = "https://github.com/Jyx/swimflow"
+homepage = "https://github.com/Jyx/swimflow"
+readme = "README.rst"
+keywords = ["diagram", "swimlane", "svg", "text-to-diagram"]
+categories = ["command-line-utilities", "visualization"]
+
+[[bin]]
+name = "swimflow"
+path = "src/main.rs"
+
+[lib]
+name = "swimflow"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive", "wrap_help"] }
+# Font shaping/measurement for the renderer. `fontconfig` is disabled so the
+# binary stays self-contained (the default font is embedded in `src/assets`).
+cosmic-text = { version = "0.19", default-features = false, features = ["std", "swash"] }
+# Kept in lockstep with `cosmic-text`; used to load the embedded font without
+# consulting system font config (`fontconfig` is deliberately not enabled).
+fontdb = { version = "0.23", default-features = false, features = ["std"] }
+# (0.23 is also the newest `svg2pdf` accepts; 0.24 would compile a second copy.)
+# SVG parsing + rasterization/PDF: PNG (resvg) and PDF (svg2pdf) are derived
+# from the canonical SVG. `usvg` is also used to validate output in tests.
+# resvg/usvg are capped below their newest release by `svg2pdf`, which pins
+# `usvg ^0.45` and hands its tree straight to the PDF writer; bump all three
+# together when `svg2pdf` releases a matching version.
+resvg = "0.45.1"
+svg2pdf = "0.13.0"
+thiserror = "2"
+tiny_http = { version = "0.12", default-features = false }
+usvg = "0.45.1"
+
+[dev-dependencies]
+# Used only by tests/completions.rs to render (and drift-check) the committed
+# bash completion file from the clap command tree. Not needed to build or run
+# the binary.
+clap_complete = "4"
+# Test scratch directories. `TempDir` deletes its directory on drop, so a test
+# run (even a failing one) leaves nothing behind in /tmp.
+tempfile = "3"
+
+[profile.release]
+lto = true
+codegen-units = 1

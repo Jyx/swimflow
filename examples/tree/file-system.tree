@@ -1,0 +1,30 @@
+// file-system.tree -- a directory layout, growing from left to right.
+//
+// `orientation = landscape;` puts the root on the left; `shape` and `style`
+// are the same attributes the activity diagram uses.
+
+tree "Project layout" {
+  orientation = landscape;
+
+  root "swimflow/" [shape = roundedbox];
+
+  "src/" {
+    "core/" {
+      "svg.rs";
+      "formats.rs";
+      "html.rs";
+    }
+    "plugin/" {
+      "activity.rs";
+      "sequence/";
+      "tree/";
+    }
+    "main.rs";
+  }
+  "examples/" {
+    "sequence/";
+    "tree/";
+  }
+  "tests/";
+  "Cargo.toml" [style = dashed];
+}

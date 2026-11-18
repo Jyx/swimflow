@@ -1,0 +1,11 @@
+diagram overview {
+  numbering = auto;
+  Start -> Review;
+  Review [ref = "#detail", label = "Review"];
+}
+
+diagram detail {
+  lane "CI" {
+    Prepare -> Approve;
+  }
+}

@@ -1,0 +1,29 @@
+// numbering-auto.diag -- `numbering = auto` numbers nodes in *definition order*.
+//
+// The nodes below are deliberately declared in a scrambled order: the pipeline
+// runs Plan -> Build -> Test -> Release -> Deploy -> Verify, but the file lists
+// them as Deploy, Test, Plan, Verify, Build, Release. Because the policy is
+// `auto`, swimflow simply walks the file top-to-bottom:
+//
+//   Deploy = 1, Test = 2, Plan = 3, Verify = 4, Build = 5, Release = 6
+//
+// The badges therefore do *not* follow the arrows. Compare
+// `numbering-topological.diag`, which declares the exact same graph but lets
+// the edges decide the numbers.
+
+diagram numbering_auto {
+  numbering = auto;
+
+  Deploy;
+  Test;
+  Plan;
+  Verify;
+  Build;
+  Release;
+
+  Plan -> Build;
+  Build -> Test;
+  Test -> Release;
+  Release -> Deploy;
+  Deploy -> Verify;
+}

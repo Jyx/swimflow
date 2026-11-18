@@ -1,0 +1,636 @@
+.\" Man page for swimflow. -*- nroff -*-
+.TH SWIMFLOW 1 "2025" "swimflow" "User Commands"
+.SH NAME
+swimflow \- generate activity/swimlane, sequence, tree, treemap and manifest \
+diagrams from a text DSL
+.SH SYNOPSIS
+.B swimflow
+.RI [ options ]
+.RI [ file ]
+.SH DESCRIPTION
+.B swimflow
+turns a small text DSL into diagrams. It reads a diagram specification and
+writes the rendered diagram. The canonical output is a standalone SVG; PNG and
+PDF are derived from that same SVG, and an interactive HTML bundle can inline
+several diagrams with drill-down navigation.
+.PP
+The
+.I .diag
+language is a small DOT-like language, compatible with the reference
+implementation.
+.PP
+Five diagram types are supported. Each one is a plugin: it owns the reading of
+the source and the drawing, while fonts, PNG/PDF conversion and the HTML
+bundle are shared. The type is detected from the file extension
+.RB ( .diag ", " .seq ", " .tree ", " .tmap ", " .mfst )
+or from the content of the file, and can be selected explicitly with
+.BR \-\-type .
+Run
+.B swimflow \-\-list\-types
+for the list.
+.PP
+If
+.I file
+is omitted or is
+.BR \- ,
+the specification is read from standard input. If
+.B \-o
+is omitted and the input is a file, output is written next to it with the
+extension implied by the chosen format.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Print a help message and exit. The short
+.B \-h
+form gives a one-line summary per option; the long
+.B \-\-help
+form adds the full descriptions, headings and examples. Both wrap to the
+terminal width.
+.TP
+.BR \-V ", " \-\-version
+Print version information and exit.
+.TP
+.BR \-t ", " \-\-type " " \fITYPE\fR
+Select the diagram type of the input:
+.B activity
+(swimlane diagrams, reference compatible) or
+.B sequence
+(sequence diagrams), or
+.B tree
+(tree diagrams), or
+.B treemap
+(nested rectangles sized by a number) or
+.B manifest
+(which rows belong to which columns). The type is normally detected
+automatically, so this option is only needed for files with an unusual
+extension or for standard input.
+.TP
+.B \-\-list\-types
+Print the available diagram types and their descriptions, then exit.
+.TP
+.BR \-o ", " \-\-output " " \fIPATH\fR
+Write output to
+.IR PATH .
+The special value
+.B \-
+writes to standard output. When omitted, the format is inferred from the
+extension of
+.IR PATH .
+.TP
+.BR \-f ", " \-\-format " " \fIformat\fR
+Select the output format:
+.BR svg ,
+.BR png ,
+.B pdf
+or
+.BR html .
+Defaults to
+.B svg
+(and to
+.B html
+when
+.B \-\-bundle
+is given).
+.TP
+.BR \-b ", " \-\-bundle " " \fIPATH\fR
+Emit one self-contained interactive HTML file containing every diagram in the
+loaded document set. Nodes with a
+.B ref
+attribute navigate to the referenced diagram; a breadcrumb, back button, URL
+hash routing and the Escape key are provided by an inline, dependency-free
+runtime. The diagram opens fitted to the window; the bar has zoom buttons, and
+Ctrl or Cmd with the mouse wheel zooms around the pointer (the keys
+.BR + ,
+.BR \- ,
+.B 1
+(actual size) and
+.B 0
+(fit) work too). Zoom affects the page only, never an exported file.
+.TP
+.BR \-\-root " " \fIDIAGRAM_ID\fR
+Choose the entry diagram for the HTML bundle. Defaults to the first diagram of
+the root document.
+.TP
+.B \-\-no\-external
+Do not emit external
+.B href
+links in the output. Internal
+.B ref
+links are unaffected.
+.TP
+.B \-\-no\-external\-files
+Do not load files referenced by
+.BR "ref = \[dq]other.diag#..." ;
+only references within the input document resolve.
+.TP
+.B \-\-allow\-broken\-links
+Keep going when a
+.B ref
+target cannot be resolved: the node is rendered disabled and a warning is
+printed, instead of failing.
+.TP
+.B \-\-embed\-font
+Embed the selected font as a base64
+.B @font-face
+inside the SVG (or, for a bundle, once in the page CSS) so the output is fully
+self-contained.
+.TP
+.B \-\-text\-as\-paths
+Render text as vector outlines. The result contains no
+.B <text>
+elements and has no font dependency.
+.TP
+.BR \-\-font " " \fIpath\fR
+Measure, embed and rasterize text with the TrueType/OpenType font at
+.IR path ,
+instead of the built-in VL Gothic. The font's declared family name is used for
+the SVG
+.B @font-face
+and
+.B font-family
+attributes and for the
+.B usvg
+database behind PNG and PDF. Layout is font-independent, so box geometry does
+not change.
+.TP
+.BR \-\-font\-family " " \fIname\fR
+Look up the installed font family
+.I name
+through fontconfig and use it for text measurement and rendering. Ignored when
+.B \-\-font
+is given. Layout is font-independent.
+.TP
+.B \-\-nodoctype
+Omit the XML doctype declaration from SVG output.
+.TP
+.B \-\-noviewbox
+Emit
+.B width
+and
+.B height
+instead of a
+.B viewBox
+on the root SVG element.
+.TP
+.BR \-T ", " \-\-transparent
+Do not paint an opaque background.
+.TP
+.BR \-\-scale " " \fIfactor\fR
+Raster scale for PNG output (1.0 = 96 DPI). The live-preview server uses
+.B SWIMFLOW_SCALE
+instead.
+.TP
+.BR \-a ", " \-\-antialias
+Render PNG at twice the size, for compatibility with the reference
+.B \-\-antialias
+option. In the live-preview server, set
+.B SWIMFLOW_SCALE=2.0
+instead.
+.TP
+.B \-\-dump\-ast
+Parse the input, print the syntax tree and exit.
+.TP
+.B \-\-dump\-model
+Build the model, print lanes, nodes and edges, and exit.
+.TP
+.B \-\-dump\-geometry
+Build and lay out the model, then print grid geometry as JSON and exit.
+.TP
+.B \-\-pixels
+With
+.BR \-\-dump\-geometry ,
+print pixel boxes instead of integer grid cells.
+.TP
+.B \-\-serve
+Run an HTTP server that lists the
+.I .diag
+files under a configured directory and renders an editable live preview in
+the browser. Configuration is read from a
+.I .env
+file; see
+.B ENVIRONMENT
+below and
+.IR \.env.example .
+The server binds all interfaces by default so it can be reached from other
+machines.
+.TP
+.BR \-\-env\-file " " \fIPATH\fR
+Read server configuration from
+.I PATH
+instead of
+.IR \./.env .
+A missing file is an error. The
+.B SWIMFLOW_ENV
+environment variable is an alternative way to select the file.
+.PP
+The options grouped under
+.B CLI only
+in
+.B swimflow \-h
+are one-shot settings: they affect a direct render but are ignored by
+.BR \-\-serve ,
+which uses its own defaults. They are
+.BR \-\-root ,
+.BR \-\-no\-external ,
+.BR \-\-no\-external\-files ,
+.BR \-\-allow\-broken\-links ,
+.BR \-\-embed\-font ,
+.BR \-\-text\-as\-paths ,
+.BR \-\-nodoctype ,
+.BR \-\-noviewbox
+and
+.BR \-\-transparent .
+The server settings it does understand are listed under
+.BR ENVIRONMENT .
+.SH DIAGRAM LANGUAGE
+The activity diagram language is described in
+.IR docs/dsl.rst
+in the source distribution. In brief:
+.PP
+.nf
+diagram overview {
+  Start -> Review;
+  Review [ref = "#detail", label = "Review"];
+}
+diagram detail {
+  lane "CI" { Build -> Test; }
+}
+.fi
+.PP
+Attribute statements inside
+.B [ ... ]
+carry
+.BR label ,
+.BR color ,
+.BR shape ,
+.BR ref ,
+.BR href ,
+.B numbered
+and other attributes. Unknown attributes are preserved. A
+.B ref
+value may be
+.IR detail ,
+.IR "#detail" ,
+.IR other.diag
+or
+.IR other.diag#detail .
+.PP
+The sequence diagram language looks like this:
+.PP
+.nf
+sequence "Checkout" {
+  participant "Client" as client;
+  participant "Server";
+
+  client -> Server: "POST /orders";
+  Server --> client: "201 Created";
+
+  note over client, Server: "the request phase";
+
+  loop "until confirmed" {
+    Server -> client: "still there?";
+  }
+}
+.fi
+.PP
+The message operators are
+.B \-> (a synchronous call),
+.B \->> (an asynchronous message),
+.B \-\-> (a reply) and
+.B \-\- (a result). Frames are introduced by
+.BR loop ,
+.BR opt ,
+.BR par ,
+.BR alt ,
+.BR critical ,
+.BR break ,
+.B else
+and
+.BR and .
+The tree diagram language looks like this:
+.PP
+.nf
+tree "Product" {
+  root "Swimflow";
+
+  "Core" {
+    "Parser";
+    "Renderer" { "SVG"; "PNG"; }
+  }
+  "Docs" [color = "#cfe8ff"];
+}
+.fi
+.PP
+A node is a name with optional attributes, followed by either
+.B ;
+(a leaf) or a block of children. The attributes are
+.BR label ,
+.BR color ,
+.BR textcolor ,
+.BR linecolor ,
+.BR shape ,
+.BR style ,
+.BR href ,
+.B target
+(where an \fBhref\fR opens, as in HTML: \fB_blank\fR for a new tab),
+.B edge
+(a label on the connector into the node),
+.B edgestyle
+(\fBdashed\fR draws that connector dashed, except where it merges with a solid one),
+.B collapsed
+(start with the children folded away) and
+.B ref
+(open another tree of the same file). A circle on every branch (on its bottom edge, or on its right edge in
+landscape) folds and
+unfolds it: a minus while the children are shown, a plus while they are
+folded. The circles work in an HTML bundle and in the live preview, where
+.B Collapse all
+and
+.B Expand all
+buttons in the top bar fold or unfold every branch at once; SVG, PNG
+and PDF written by the command line show the initial state, while the
+.B Download
+button of the live preview writes the view on screen, folds included.
+.B orientation = landscape;
+makes the tree grow from left to right.
+.PP
+The treemap language looks like this:
+.PP
+.nf
+treemap "Budget" {
+  class housing [color = "#cfe8ff"];
+
+  root "Monthly budget";
+
+  Housing: 1500 [class = housing] {
+    Rent: 1000 [class = housing];
+    Utilities: 320 [class = housing];
+  }
+  Food: 620;
+  Savings: 500;
+}
+.fi
+.PP
+The number follows the name after a colon and decides the area. A leaf without
+a number counts 1; a container without one uses the sum of its children. An
+explicit container value only decides its own share among its siblings. The
+node attributes are
+.BR label ,
+.BR color ,
+.BR textcolor ,
+.BR linecolor ,
+.B href
+and
+.B target
+and
+.BR showvalue .
+A
+.B class NAME [attrs];
+statement defines reusable attributes, applied with
+.B [class = NAME]
+(the node's own attributes win). Values are drawn by default. In an HTML bundle a
+.B Hide values / Show values
+button in the top bar toggles them; SVG, PNG and PDF have no button and
+show the values the source asks for. The diagram attributes
+.B width
+and
+.B height
+set the canvas (default 800 by 500 pixels). Labels that do not fit are
+truncated with three dots. The core zoom works on a treemap like on every
+other diagram type.
+.PP
+The manifest language looks like this:
+.PP
+.nf
+manifest "Products" {
+  group "Line" {
+    column base { core; ui; net; }
+    column lite [extends = base] { remove net; }
+    column pro [extends = base] { override ui [note = "v2"]; cloud; }
+  }
+  row docs: base, pro;
+}
+.fi
+.PP
+A column is a set and a row an element: a row listed in a column block, or
+naming the column after a colon in a
+.B row
+statement, is a member (a filled dot). A column with
+.B extends
+inherits the rows of another column (hollow dots), transitively;
+.B remove
+drops an inherited row (a grey cross) and
+.B override
+keeps it but marks it changed (a ringed dot).
+.B group
+draws a band over several columns and
+.B rowgroup
+a titled block of rows. A count column shows how many columns each row is in;
+rows are sorted by it unless
+.B sort
+is
+.B name
+or
+.BR source .
+The diagram attributes are
+.BR title ,
+.BR sort ,
+.BR showcount ,
+.B countlabel
+and
+.BR legend ;
+columns, rows and groups take
+.BR label ,
+.BR color ,
+.B textcolor
+and
+.B href
+(columns and rows also
+.BR markcolor ;
+a group also
+.B shape
+=
+.B roundedbox
+for rounded corners),
+and an entry takes a
+.B note
+shown in its tooltip. In an HTML bundle hovering a cell highlights its row and
+column; the cross next to a row or column hides it, a legend entry hides every
+mark of its kind, clicking a column header shows only that column's rows, and clicking a row
+label shows only that row's columns; clicking a cell does both.
+A hidden row or column folds to a thin strip with a
+.B +
+that unfolds it, and a download from the live preview leaves it out.
+.B hidemarks
+lists the kinds of mark hidden at first (default
+.BR removed ;
+.B none
+shows them all).
+.SH EXAMPLES
+The source distribution ships an
+.I examples/
+directory with runnable diagrams for basic flows, swimlanes, CI/CD, incident
+response, state machines, dependency graphs, unicode and drill-down. See
+.I examples/README.rst
+for the full tour. Some starting points:
+.PP
+.nf
+    swimflow examples/hello.diag
+    swimflow examples/deployment.diag -f png --scale 2 -o deployment.png
+    swimflow examples/zoom-demo.diag --bundle zoom-demo.html --embed-font
+.fi
+.PP
+Render the default diagram as SVG (writes
+.IR simple.svg ):
+.PP
+.nf
+    swimflow simple.diag
+.fi
+.PP
+Write PNG at 2x scale:
+.PP
+.nf
+    swimflow simple.diag -f png --scale 2 -o simple.png
+.fi
+.PP
+Build a self-contained interactive bundle from a multi-diagram file:
+.PP
+.nf
+    swimflow manual.diag --bundle manual.html --embed-font
+.fi
+.PP
+Read from standard input and write SVG to standard output:
+.PP
+.nf
+    echo '{ A -> B; }' | swimflow -o -
+.fi
+.PP
+Render a sequence diagram:
+.PP
+.nf
+    swimflow examples/sequence/checkout.seq
+    swimflow examples/sequence/checkout.seq -f png -o checkout.png
+.fi
+.PP
+Render a tree diagram:
+.PP
+.nf
+    swimflow examples/tree/org-chart.tree
+    swimflow examples/tree/file-system.tree -f png -o layout.png
+.fi
+.PP
+Render a treemap:
+.PP
+.nf
+    swimflow examples/treemap/budget.tmap
+    swimflow examples/treemap/disk-usage.tmap -f png -o disk-usage.png
+.fi
+.PP
+Render a manifest:
+.PP
+.nf
+    swimflow examples/manifest/editions.mfst
+    swimflow examples/manifest/editions.mfst --bundle editions.html
+.fi
+.SH COMPATIBILITY
+.B swimflow
+accepts the same
+.I .diag
+files as the reference implementation and targets the same integer-grid
+layout and pixel metrics.
+New syntax (multiple diagrams,
+.BR ref ,
+legends, sequence numbers) is additive: existing files are unaffected.
+The docutils/Sphinx directive options
+.BR :width: ,
+.B :height:
+and
+.B :scale:
+are not supported, because
+.B swimflow
+is a standalone binary rather than a Sphinx extension; use
+.B \-\-scale
+for raster scaling.
+.SH ENVIRONMENT
+The live-preview server (
+.BR \-\-serve )
+reads a small
+.I .env
+file (default
+.IR \./.env ,
+optional) and then lets the process environment override it. Recognised keys:
+.TP
+.B SWIMFLOW_DIR
+The directory scanned recursively for diagram files (default: the working
+directory). Only files of a known diagram type below it are served:
+.I .diag
+(activity/swimlane),
+.I .seq
+(sequence),
+.I .tree
+(tree),
+.I .tmap
+(treemap) and
+.I .mfst
+(manifest).
+.TP
+.B SWIMFLOW_HOST
+The interface to bind (default
+.BR 0.0.0.0 ,
+reachable from other machines).
+.TP
+.B SWIMFLOW_PORT
+The TCP port (default
+.BR 8000 ).
+.TP
+.B SWIMFLOW_DEBOUNCE_MS
+How long to wait after the last keystroke before re-rendering the preview
+(default
+.BR 600 ).
+.TP
+.B SWIMFLOW_SCALE
+Raster scale for PNG downloads (default
+.BR 1.0 ,
+where 1.0 is 96 DPI). Must be a positive finite number; 2 doubles the pixel
+size. This is the live-preview equivalent of
+.BR \-\-scale .
+.TP
+.B SWIMFLOW_TOKEN
+Optional shared secret. When set, the page must be opened with
+.BR ?token= \fIvalue\fR;
+a cookie then keeps the session authorised.
+.PP
+In the browser the diagrams appear in a tree; selecting one shows its source
+next to the rendered HTML bundle (drill-down links work). Editing the source
+re-renders after the debounce delay. The server never writes to the source
+files: the
+.B Download
+button (or Ctrl+S) exports the current editor contents to a new file.
+The
+.B Expand
+button makes the rendered diagram fill the window below the toolbar, hiding
+the file list and editor; press Escape or
+.B Restore
+to bring them back.
+.PP
+The sidebar has one tab per diagram type. The tab selects the files that are
+listed, the syntax highlighting, the starter template of a new file and the
+export formats; everything else works the same for every type.
+.PP
+The sidebar can also import diagram files from the local disk and create new
+diagrams from scratch. Those buffers live in the browser tab only; they are
+never written to the served directory and they are gone when the tab is
+closed.
+.SH SHELL COMPLETION
+A bash completion file ships in the source distribution at
+.IR completions/swimflow.bash .
+Source it for the current shell, or install it where bash-completion looks for
+it:
+.PP
+.nf
+    source completions/swimflow.bash
+    cp completions/swimflow.bash \e
+        ~/.local/share/bash-completion/completions/swimflow
+.fi
+.SH LICENSE
+Apache License 2.0.

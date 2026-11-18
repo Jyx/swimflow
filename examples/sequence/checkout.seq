@@ -1,0 +1,25 @@
+// checkout.seq -- a sequence diagram.
+//
+// Sequence diagrams live in their own plugin: the file extension (.seq) or
+// the `sequence` keyword selects them.
+
+sequence "Checkout" {
+  participant "Client" as client;
+  participant "Order Service" as orders;
+  participant "Payment" as payment;
+  participant "Database" as db;
+
+  client -> orders: "POST /orders";
+  orders -> db: "insert order";
+  db --> orders: "order id";
+  orders -> payment: "charge";
+  payment --> orders: "approved";
+  orders --> client: "201 Created";
+
+  note over client, orders: "the request phase";
+
+  opt "the card is declined"
+    orders -> client: "402 Payment Required";
+    client -> orders: "retry with another card";
+  end
+}

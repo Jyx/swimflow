@@ -1,0 +1,25 @@
+// numbering-depth.diag -- `numbering = depth` numbers by process stage.
+//
+// Every node gets a depth: its longest distance from a start (the number of
+// arrows on the longest path that reaches it). Cycle-closing edges are ignored,
+// so a feedback loop does not matter here. Nodes are numbered by depth and then
+// by definition order, which keeps steps that can run in parallel on
+// consecutive numbers:
+//
+//   Start = 1, ManualReview = 2, Build = 3, Test = 4
+//
+// `ManualReview` has no incoming edge, so it shares the first stage with
+// `Start` even though it is declared last. Compare `numbering-topological.diag`,
+// where a ready step is numbered as soon as its own dependencies are done.
+
+diagram numbering_depth {
+  numbering = depth;
+
+  Start;
+  Build;
+  Test;
+  ManualReview;
+
+  Start -> Build;
+  Build -> Test;
+}

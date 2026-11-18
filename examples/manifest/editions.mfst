@@ -1,0 +1,32 @@
+// Which features each product edition ships. Editions build on each other
+// with `extends`: Pro starts from Standard and Enterprise from Pro, so the
+// hollow dots show what an edition gets for free from the one below.
+manifest "Editions" {
+  title = "Features per edition";
+  sort = source;
+  countlabel = "editions";
+
+  class paid [color = "#e7f5ff"];
+
+  group "Desktop" {
+    column Free { Editor; "Spell check"; Export; }
+    column Standard [extends = Free] { Themes; Plugins; }
+    column Pro [extends = Standard, class = paid] {
+      override Export [note = "adds PDF/A"];
+      "Version history";
+    }
+  }
+  group "Cloud" [color = "#d3f9d8"] {
+    column Team { Editor; Sync; Sharing; }
+    column Enterprise [extends = Team, class = paid] {
+      remove Sharing [note = "replaced by SSO groups"];
+      SSO;
+      "Audit log";
+    }
+  }
+
+  rowgroup "Platform" {
+    row Sync;
+    row "Offline mode": Free, Team;
+  }
+}

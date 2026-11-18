@@ -1,0 +1,17 @@
+/target
+/.env
+/.venv-ref/
+/.venv/
+/scripts/.venv/
+**/*.rs.bk
+__pycache__/
+*.pyc
+
+# Generated from examples/*.diag by running swimflow.
+/examples/**/*.svg
+/examples/**/*.png
+/examples/**/*.pdf
+/examples/**/*.html
+
+# Generated when running swimflow on a tests/fixtures input in place.
+/tests/fixtures/**/*.svg

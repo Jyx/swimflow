@@ -1,0 +1,35 @@
+// dependency-graph.diag -- a Graphviz-style dependency DAG.
+//
+// No swimlanes are needed here; nodes and labelled, styled edges are enough.
+// The legend sits on the right because the diagram is landscape.
+
+diagram dependency_graph {
+  orientation = landscape;
+  numbering = topological;
+
+  class third_party [color = "#e0f2fe", shape = roundedbox];
+  class first_party [color = "#f3e8ff", shape = roundedbox];
+  class generated [color = "#fef3c7", shape = roundedbox];
+
+  legend [title = "Dependencies", position = right] {
+    class third_party [label = "Third-party crate"];
+    class first_party [label = "First-party crate"];
+    class generated [label = "Generated code"];
+  }
+
+  App [class = first_party];
+  Parser [class = first_party];
+  Lexer [class = first_party];
+  AST [class = generated];
+  Diagnostics [class = first_party];
+  serde [class = third_party];
+  regex [class = third_party];
+
+  App -> Parser;
+  App -> Diagnostics;
+  Parser -> Lexer;
+  Parser -> AST;
+  Lexer -> regex [label = "scan"];
+  Parser -> serde [label = "decode"];
+  AST -> serde [label = "attributes"];
+}

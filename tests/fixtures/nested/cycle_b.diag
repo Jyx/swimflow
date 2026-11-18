@@ -1,0 +1,3 @@
+diagram b {
+  Y [ref = "cycle_a.diag#a"];
+}

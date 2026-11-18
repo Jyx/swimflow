@@ -1,0 +1,3 @@
+diagram main {
+  A [ref = "child.diag#nope"];
+}

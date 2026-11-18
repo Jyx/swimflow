@@ -1,0 +1,13 @@
+// cross-file/overview.diag -- drill-down across files.
+//
+// `details.diag#details` loads the sibling file transitively. A bundle built
+// from this file contains both the local and the referenced diagram:
+//
+//   swimflow examples/cross-file/overview.diag \
+//     --bundle examples/cross-file/overview.html
+
+diagram overview {
+  numbering = auto;
+  Start -> Review;
+  Review [ref = "details.diag#details", label = "Review changes"];
+}

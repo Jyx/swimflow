@@ -1,0 +1,42 @@
+// incident-response.diag -- an on-call runbook with a feedback loop.
+//
+// The dashed follow-up edge closes the loop from the postmortem back to
+// triage, so the graph is cyclic. Topological numbering falls back to a
+// stable definition order for the cycle.
+
+diagram incident_response {
+  numbering = topological;
+
+  class alert [color = "#fde2e1"];
+  class action [color = "#e8f5e9", shape = roundedbox];
+  class followup [color = "#e0f2fe", shape = roundedbox];
+
+  legend [title = "Response key", position = bottom] {
+    class alert [label = "Alert"];
+    class action [label = "Containment / fix"];
+    class followup [label = "Follow-up"];
+  }
+
+  lane "Monitoring" {
+    Detect [class = alert];
+  }
+  lane "On-call" {
+    Triage [class = action];
+    Mitigate [class = action];
+    Resolve [class = action];
+    Review [class = followup];
+  }
+  lane "Engineering" {
+    Fix [class = action];
+    Deploy [class = action];
+  }
+
+  Detect -> Triage [label = "page"];
+  Triage -> Mitigate [label = "contain"];
+  Mitigate -> Fix [label = "root cause"];
+  Fix -> Deploy [label = "hotfix"];
+  Deploy -> Resolve [label = "verify"];
+  Resolve -> Review [label = "close"];
+  Review -> Triage [label = "follow-up", style = dashed];
+  Mitigate -> Resolve [label = "stabilised", style = dashed];
+}

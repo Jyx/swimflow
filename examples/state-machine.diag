@@ -1,0 +1,21 @@
+// state-machine.diag -- a graph-style example with no explicit lanes.
+//
+// It exercises all four edge relations:
+//   ->   forward arrow
+//   <-   reverse arrow
+//   <->  bidirectional arrow
+//   --   plain line
+
+diagram state_machine {
+  orientation = landscape;
+  numbering = auto;
+
+  Idle -> Running [label = "start"];
+  Running <-> Paused [label = "pause / resume"];
+  Paused -> Stopped [label = "stop"];
+  Running -> Failed [label = "error"];
+  Failed -> Idle [label = "reset"];
+  Stopped -> Idle [label = "reset"];
+  Idle -- Ready [label = "standby"];
+  Ready -> Running [label = "start"];
+}

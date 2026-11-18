@@ -1,0 +1,28 @@
+// org-chart.tree -- a company organization, colored by department.
+//
+//   swimflow examples/tree/org-chart.tree -o org-chart.svg
+
+tree "Organization" {
+  root "Acme Corp" [color = "#ffff99"];
+
+  "Engineering" [color = "#cfe8ff"] {
+    "Platform" [color = "#e8f3ff"] {
+      "Build & CI";
+      "Infrastructure";
+    }
+    "Product" [color = "#e8f3ff"] {
+      "Web";
+      "Mobile";
+      "Design";
+    }
+  }
+  "Sales" [color = "#d9f2d9"] {
+    "EMEA";
+    "Americas";
+  }
+  "Operations" [color = "#fde0d0"] {
+    "Finance";
+    "People";
+    "Legal";
+  }
+}

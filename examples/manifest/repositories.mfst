@@ -1,0 +1,22 @@
+// Which source repositories each build target checks out. A board target
+// `extends` a base target, inherits its repositories (hollow dots), drops
+// some and pins others to a different branch.
+manifest "Repositories" {
+  title = "Repositories per target";
+  countlabel = "targets";
+
+  group "Base" {
+    column base { toolchain; bootloader; kernel; "build-scripts"; }
+  }
+  group "Boards" [color = "#e7f5ff"] {
+    column "board-a" [extends = base] { drivers; examples; }
+    column "board-b" [extends = base] {
+      override kernel [note = "pinned to an LTS branch"];
+      drivers;
+    }
+    column "board-c" [extends = "board-b"] {
+      remove bootloader [note = "boots from ROM"];
+      firmware;
+    }
+  }
+}

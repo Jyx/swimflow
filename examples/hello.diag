@@ -1,0 +1,8 @@
+// hello.diag -- the smallest useful activity diagram.
+//
+// Edge operators need surrounding whitespace: write `A -> B`, not `A->B`
+// (a compatibility quirk inherited from the reference lexer).
+
+diagram hello {
+  Start -> Finish;
+}

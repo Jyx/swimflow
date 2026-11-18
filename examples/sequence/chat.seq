@@ -1,0 +1,21 @@
+// chat.seq -- the four message operators in one diagram.
+//
+//   ->   a synchronous call (solid line, filled head)
+//   ->>  an asynchronous message (solid line, open head)
+//   -->  a reply (dashed line, open head)
+//   --   a result (dashed line, no head)
+
+sequence "Chat" {
+  participant "User" as user;
+  participant "Client" as client;
+  participant "Server" as server;
+
+  user -> client: "type a message";
+  client ->> server: "send it";
+  server --> client: "delivered";
+  client --> user: "show it";
+
+  note over user, client: "everything happens on one thread";
+
+  server -> server: "retry on failure";
+}

@@ -1,0 +1,19 @@
+// unicode.diag -- unicode names, quoted ids and a multiline label.
+//
+// Names and strings are UTF-8; the embedded VL Gothic font covers the
+// Japanese glyphs below.
+
+diagram "多言語ワークフロー" {
+  orientation = landscape;
+
+  "受付" -> "審査" [label = "申請"];
+  "審査" -> "承認" [label = "OK"];
+  "審査" -> "差戻し" [label = "要修正"];
+  "差戻し" -> "受付";
+  "承認" -> "完了" [label = "通知"];
+
+  Note [label = """複数行の
+ラベルも
+表示できます"""];
+  "完了" -> Note;
+}

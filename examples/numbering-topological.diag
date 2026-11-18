@@ -1,0 +1,32 @@
+// numbering-topological.diag -- `numbering = topological` numbers nodes along
+// the edges.
+//
+// This is the *same graph* as `numbering-auto.diag` (and the same scrambled
+// declaration order), but swimflow now runs Kahn's algorithm over the directed
+// edges. Nodes with no incoming edge come first; ties are broken by definition
+// order. The pipeline Plan -> Build -> Test -> Release -> Deploy -> Verify
+// therefore numbers as:
+//
+//   Plan = 1, Build = 2, Test = 3, Release = 4, Deploy = 5, Verify = 6
+//
+// That matches the arrows regardless of where a node sits in the file. A
+// feedback loop does not spoil this: the edge that would close the cycle is
+// dropped first, so numbering follows the remaining flow; see
+// `incident-response.diag` for a cyclic example.
+
+diagram numbering_topological {
+  numbering = topological;
+
+  Deploy;
+  Test;
+  Plan;
+  Verify;
+  Build;
+  Release;
+
+  Plan -> Build;
+  Build -> Test;
+  Test -> Release;
+  Release -> Deploy;
+  Deploy -> Verify;
+}

@@ -1,0 +1,20 @@
+treemap "Budget" {
+  class housing [color = "#cfe8ff", linecolor = "#33415c"];
+  class food [color = "#d9f2d9", linecolor = "#2e7d32"];
+  class leisure [color = "#fff3bf", linecolor = "#c9b037"];
+
+  root "Monthly budget";
+
+  Housing: 1500 [class = housing] {
+    Rent: 1000 [class = housing];
+    Utilities: 320 [class = housing];
+    Insurance: 180 [class = housing];
+  }
+  Food: 620 [class = food] {
+    Groceries: 430 [class = food];
+    Restaurants: 190 [class = food];
+  }
+  Transport: 280;
+  Savings: 500;
+  Leisure: 300 [class = leisure];
+}

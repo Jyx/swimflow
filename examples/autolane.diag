@@ -1,0 +1,20 @@
+// autolane.diag -- lanes derived from node-name prefixes.
+//
+// The `autolane` plugin treats the part before the first underscore as the
+// lane id and strips it from the label. `dev_build` therefore becomes node
+// "build" in lane `dev`.
+
+diagram autolane {
+  plugin autolane;
+
+  lane dev { }
+  lane ops { }
+
+  dev_plan;
+  dev_build;
+  dev_test;
+  ops_release;
+  ops_monitor;
+
+  dev_plan -> dev_build -> dev_test -> ops_release -> ops_monitor;
+}

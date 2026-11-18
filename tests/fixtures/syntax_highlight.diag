@@ -1,0 +1,19 @@
+// line comment
+# hash comment
+/* block
+   comment */
+diagram demo {
+  numbering = auto;
+  class red [color = "#f00"];
+  legend [title = "Legend"] {
+    class red [label = "Red"];
+    numbered;
+  }
+  A -> B -> C [label = """multi
+line"""];
+  A <- B;
+  B <-> C;
+  A -- C;
+  D [numbered = 2, ref = "#other"];
+}
+diagram other { E; }

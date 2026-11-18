@@ -1,0 +1,37 @@
+// product-map.tree -- two trees in one file, links and folded branches.
+//
+// Every `tree` block is rendered as its own diagram; the live preview shows
+// the first one and the HTML bundle contains all of them. Click the circle
+// under a node to fold or unfold its branch (a plus means folded, a minus
+// unfolded). `collapsed` starts a branch folded; `ref` opens another tree of
+// the file when the node is clicked.
+
+tree "Features" {
+  root "Swimflow";
+
+  "Diagram types" [color = "#cfe8ff", edgestyle = dashed] {
+    "Activity" [href = "https://github.com/Jyx/swimflow", target = _blank];
+    "Sequence";
+    "Tree" [color = "#ffff99", edgestyle = dashed];
+  }
+  "Roadmap" [ref = "Roadmap", color = "#e8f3ff"];
+  "Output formats" [color = "#d9f2d9"] {
+    "SVG";
+    "PNG";
+    "PDF";
+    "HTML bundle";
+  }
+  "Live preview" [color = "#fde0d0", collapsed] {
+    "Editor";
+    "Export";
+  }
+}
+
+tree "Roadmap" {
+  root "Next";
+
+  "Collapse in place" [color = "#d9f2d9"];
+  "Drill-down into subtrees" [color = "#cfe8ff"];
+  "Neovim syntax" [color = "#cfe8ff"];
+  "Back to the features" [ref = "Features", style = dashed];
+}

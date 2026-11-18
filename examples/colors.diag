@@ -1,0 +1,48 @@
+// colors.diag -- customising lane headers and node colours.
+//
+// A lane header takes its fill from the lane's `color` attribute. The most
+// direct form puts the attribute on the lane block itself:
+//
+//   lane "Name" [color = "#rrggbb"] { ... }
+//
+// The equivalent declaration form works too, and both can be mixed:
+//
+//   lane "Name" [color = "#rrggbb"];
+//   lane "Name" { ... }
+//
+// The same `color` attribute appears *inside* a lane block when the lane also
+// needs other statements:
+//
+//   lane "Name" {
+//     color = "#rrggbb";
+//     ...
+//   }
+//
+// Nodes are coloured with `color` (fill) and `linecolor` (outline), usually
+// through a reusable `class`. `textcolor` overrides the label colour.
+
+diagram colors {
+  // Reusable node styles, one per state colour.
+  class todo [color = "#e3f2fd", linecolor = "#1565c0"];
+  class doing [color = "#fff8e1", linecolor = "#ef6c00"];
+  class done [color = "#e8f5e9", linecolor = "#2e7d32"];
+
+  // Lane headers get their own colour so the swimlanes read at a glance.
+  lane "Backlog" [color = "#c5cae9"] {
+    Sketch [class = todo];
+    Plan [class = todo];
+  }
+  lane "Build" [color = "#ffe0b2"] {
+    Implement [class = doing];
+    Test [class = doing];
+  }
+  lane "Ship" [color = "#c8e6c9"] {
+    Release [class = done];
+    // A one-off node highlight: `color` plus a contrasting `textcolor`.
+    Shipment [class = done, color = "#2e7d32", textcolor = "#ffffff"];
+    Monitor [class = done];
+  }
+
+  Sketch -> Plan -> Implement -> Test -> Release -> Shipment;
+  Release -> Monitor;
+}

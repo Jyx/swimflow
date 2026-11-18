@@ -1,0 +1,28 @@
+// frames.seq -- nested frames.
+//
+// A frame is introduced by loop, opt, par, alt, critical or break and is
+// closed either with `end` or with a closing brace.
+
+sequence "Deploy" {
+  participant "CI" as ci;
+  participant "Registry" as registry;
+  participant "Cluster" as cluster;
+
+  ci -> registry: "push the image";
+
+  loop "until the rollout is healthy"
+    ci -> cluster: "roll out";
+
+    alt "the health check fails"
+      cluster --> ci: "unhealthy";
+      ci -> cluster: "roll back";
+    else "the health check passes"
+      cluster --> ci: "healthy";
+    end
+  end
+
+  par "notify the world"
+    ci -> registry: "tag the release";
+    ci -> cluster: "record the rollout";
+  end
+}

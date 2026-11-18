@@ -1,0 +1,22 @@
+treemap "Disk usage" {
+  class system [color = "#e8f3ff", linecolor = "#33415c"];
+  class data [color = "#d9f2d9", linecolor = "#2e7d32"];
+  class logs [color = "#fde0d0", linecolor = "#c0392b"];
+
+  width = 760;
+  height = 460;
+  root "/";
+
+  usr: 41.5 [class = system] {
+    lib: 18 [class = system];
+    share: 12.5 [class = system];
+    local: 11 [class = system];
+  }
+  home: 28 [class = data] {
+    photos: 14 [class = data];
+    code: 8 [class = data];
+    documents: 6 [class = data];
+  }
+  var: 18.5 [class = logs];
+  opt: 12;
+}

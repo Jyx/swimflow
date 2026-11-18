@@ -1,0 +1,8 @@
+// cross-file/details.diag -- the target of the cross-file reference.
+
+diagram details {
+  lane "CI" {
+    Prepare -> Approve;
+  }
+  Approve [label = "Approve"];
+}

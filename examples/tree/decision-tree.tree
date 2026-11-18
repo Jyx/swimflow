@@ -1,0 +1,16 @@
+// decision-tree.tree -- a yes/no decision tree.
+//
+// `edge` labels the connector that leads into a node.
+
+tree "Should we deploy?" {
+  root "Is CI green?";
+
+  "Is it Friday?" [edge = "yes", color = "#fde0d0"] {
+    "Wait until Monday" [edge = "yes", color = "#f8c9c9"];
+    "Is it a hotfix?" [edge = "no"] {
+      "Deploy" [edge = "yes", color = "#d9f2d9"];
+      "Wait until Monday" [edge = "no", color = "#f8c9c9"];
+    }
+  }
+  "Fix the build" [edge = "no", color = "#f8c9c9"];
+}

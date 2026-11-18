@@ -1,0 +1,44 @@
+// order-processing.diag -- an order-fulfilment flow with a branching
+// exception path and a retry loop.
+//
+// `A, B [attrs]` and `A -> B -> C [attrs]` are reference shorthand: the shared
+// attributes apply to every generated node/edge.
+//
+// The retry loop (Refund -> Order) makes the whole flow one feedback cycle, but
+// `numbering = topological` drops the cycle-closing edge first, so the badges
+// still follow the arrows: Order=1 ... Receive=9.
+
+diagram order_processing {
+  numbering = topological;
+
+  class happy [color = "#e8f5e9", shape = roundedbox];
+  class exception [color = "#fde2e1"];
+
+  lane "Customer" {
+    Order [class = happy];
+    Receive [class = happy];
+  }
+  lane "Fulfilment" {
+    Check [class = happy];
+    Pick [class = happy];
+    Pack [class = happy];
+  }
+  lane "Billing" {
+    Charge [class = happy];
+    Refund [class = exception];
+  }
+  lane "Shipping" {
+    Ship [class = happy];
+    Deliver [class = happy];
+  }
+
+  Order -> Check [label = "submit"];
+  Check -> Pick [label = "in stock"];
+  Check -> Refund [label = "unavailable", style = dashed];
+  Pick -> Pack;
+  Pack -> Charge [label = "invoice"];
+  Charge -> Ship [label = "paid"];
+  Ship -> Deliver;
+  Deliver -> Receive;
+  Refund -> Order [label = "retry", style = dashed];
+}

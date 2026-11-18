@@ -1,0 +1,46 @@
+// deployment.diag -- a CI/CD pipeline with classes, a legend, edge labels and
+// topological sequence numbers.
+//
+// The rollback loop is intentional: it shows how a failure path returns to the
+// developer lane without duplicating nodes.
+
+diagram deployment {
+  numbering = topological;
+
+  class automated [color = "#e8f5e9", shape = roundedbox];
+  class gate [color = "#fff3cd", shape = roundedbox];
+  class manual [color = "#fde2e1", shape = roundedbox];
+
+  legend [title = "Legend", position = bottom] {
+    class automated [label = "Automated step"];
+    class gate [label = "Approval gate"];
+    class manual [label = "Manual step"];
+    numbered;
+  }
+
+  lane "Developer" {
+    Commit [class = automated];
+    Fix [class = automated];
+  }
+  lane "CI" {
+    Build [class = automated];
+    Test [class = automated];
+    Package [class = automated];
+  }
+  lane "Operations" {
+    Approve [class = gate];
+    Deploy [class = automated];
+    Verify [class = automated];
+    Rollback [class = manual];
+  }
+
+  Commit -> Build [label = "push"];
+  Build -> Test [label = "build ok"];
+  Test -> Package [label = "tests pass"];
+  Package -> Approve;
+  Approve -> Deploy [label = "approved"];
+  Deploy -> Verify [label = "rollout"];
+  Verify -> Rollback [label = "failure"];
+  Rollback -> Fix [label = "patch"];
+  Fix -> Build [label = "retry"];
+}
