@@ -19,3 +19,11 @@ DejaVu. See the accompanying ``VL-Gothic-LICENSE*`` files:
 
 The font is loaded by ``src/text.rs`` and used only by the renderer; it does
 not affect layout.
+
+``favicon.ico`` — live-preview tab icon
+----------------------------------------
+
+The icon served at ``/favicon.ico`` by ``swimflow --serve``: two dotted lane
+ropes (the swimlanes) crossed by a wave that ends in an arrow (the flow).
+``favicon.svg`` is the source; the ``.ico`` packs 16, 32, 48 and 256 px PNG
+renderings of it.

@@ -102,8 +102,16 @@ impl Response {
     }
 }
 
+/// The browser-tab icon (lane ropes crossed by a flow); `src/assets/favicon.svg` is its source.
+const FAVICON: &[u8] = include_bytes!("../assets/favicon.ico");
+
 /// Route one request. Pure apart from filesystem reads and the renderer.
 pub fn handle(config: &ServeConfig, request: &Request<'_>) -> Response {
+    // The icon is public: browsers fetch it without the page's query token.
+    if (request.method, request.path) == ("GET", "/favicon.ico") {
+        return Response::bytes(200, "image/x-icon", FAVICON.to_vec())
+            .with_header("Cache-Control", "public, max-age=86400");
+    }
     if let Some(token) = config.token.as_deref()
         && !authorized(request, token)
     {
@@ -122,7 +130,6 @@ pub fn handle(config: &ServeConfig, request: &Request<'_>) -> Response {
         ("POST", "/api/render") => api_render(config, request),
         ("GET", "/api/export") => api_export(config, request),
         ("POST", "/api/export") => api_export(config, request),
-        ("GET", "/favicon.ico") => Response::text(204, ""),
         _ => Response::text(404, "not found\n"),
     }
 }
@@ -969,6 +976,17 @@ mod tests {
         assert!(html.contains("data-path=\"simple.diag\""), "{html}");
         assert!(html.contains("debounce: 250"), "{html}");
         assert!(!html.contains("secret.txt"), "{html}");
+    }
+
+    #[test]
+    fn favicon_is_an_ico_linked_from_the_shell() {
+        let dir = temp_dir("favicon");
+        let response = handle(&config(&dir), &request("GET", "/favicon.ico", &[], b""));
+        assert_eq!(response.status, 200);
+        assert_eq!(response.content_type, "image/x-icon");
+        assert_eq!(&response.body[..4], &[0, 0, 1, 0]);
+        let html = body(&handle(&config(&dir), &request("GET", "/", &[], b"")));
+        assert!(html.contains("href=\"/favicon.ico\""), "{html}");
     }
 
     #[test]
