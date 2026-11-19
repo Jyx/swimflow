@@ -59,10 +59,37 @@ fn collect_diagrams(dir: &Path, prefix: &Path, out: &mut Vec<PathBuf>) {
     }
 }
 
+/// The examples that git ignores (`.gitignore` or `.git/info/exclude`),
+/// relative to `examples/`. Empty when git is not available, for example in an
+/// unpacked source archive.
+fn ignored_examples() -> Vec<PathBuf> {
+    let Ok(output) = Command::new("git")
+        .args([
+            "ls-files",
+            "--others",
+            "--ignored",
+            "--exclude-standard",
+            ".",
+        ])
+        .current_dir(root().join("examples"))
+        .output()
+    else {
+        return Vec::new();
+    };
+    String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .map(PathBuf::from)
+        .collect()
+}
+
+/// Every example of the corpus; scratch files that git ignores are not part
+/// of it (two of them may even share an output name).
 fn example_diagrams() -> Vec<PathBuf> {
     let examples = root().join("examples");
     let mut diagrams = Vec::new();
     collect_diagrams(&examples, &examples, &mut diagrams);
+    let ignored = ignored_examples();
+    diagrams.retain(|path| !ignored.contains(path));
     diagrams
 }
 
